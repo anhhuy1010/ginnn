@@ -1,7 +1,7 @@
 package controller
 
 import (
-	modelRemoveId "gin/model/remove_id"
+	handleRemoveId "gin/handle/remove_id"
 	requestRemoveId "gin/request/remove_id"
 	requestStudent "gin/request/student"
 	"net/http"
@@ -21,7 +21,7 @@ func RemovefindIdHandle(c *gin.Context) {
 		{Name: "aa", Age: 32, Class: 13, Id: 3},
 		{Name: "voy", Age: 42, Class: 33, Id: 4},
 	}
-	res, err := modelRemoveId.RemoveID(req.Id, Studentss)
+	res, err := handleRemoveId.RemoveID(req.Id, Studentss)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

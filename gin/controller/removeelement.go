@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	modelRemoveElement "gin/model/remove_element"
+	handleRemoveElement "gin/handle/remove_element"
 	requestRemoveElement "gin/request/removeelement"
 	"net/http"
 
@@ -16,7 +16,7 @@ func RemoveEleHandle(c *gin.Context) {
 		return
 	}
 
-	res, ress := modelRemoveElement.RemoveElement(req.Arr1, req.Num)
+	res, ress := handleRemoveElement.RemoveElement(req.Arr1, req.Num)
 	fmt.Println(res, ress)
 	c.JSON(http.StatusOK, gin.H{"val": res, "result": ress})
 
