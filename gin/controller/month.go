@@ -1,7 +1,7 @@
 package controller
 
 import (
-	modelMonth "gin/model/month"
+	handleMonth "gin/handle/month"
 	requestMonth "gin/request/month"
 	"net/http"
 
@@ -15,7 +15,7 @@ func MonthHandle(c *gin.Context) {
 		return
 	}
 
-	res, err := modelMonth.GetDayInMonth(req.Num)
+	res, err := handleMonth.GetDayInMonth(req.Num)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

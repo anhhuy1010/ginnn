@@ -1,7 +1,7 @@
 package controller
 
 import (
-	modelFindAge "gin/model/find_age"
+	handleFindAge "gin/handle/find_age"
 	requestFindAge "gin/request/find_age"
 	requestStudent "gin/request/student"
 	"net/http"
@@ -21,7 +21,7 @@ func FindAgeHandle(c *gin.Context) {
 		{Name: "aa", Age: 32, Class: 13, Id: 3},
 		{Name: "voy", Age: 42, Class: 33, Id: 4},
 	}
-	res := modelFindAge.FindAge(req.Age, Studentss)
+	res := handleFindAge.FindAge(req.Age, Studentss)
 
 	c.JSON(http.StatusOK, gin.H{"result": res})
 }
