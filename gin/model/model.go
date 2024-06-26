@@ -6,6 +6,7 @@ import (
 	"gin/database"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type TodoList struct {
@@ -19,11 +20,11 @@ func (u *TodoList) Model() *mongo.Collection {
 	return db.Collection("todos")
 }
 
-func (u *TodoList) Find(conditions map[string]interface{}) ([]*TodoList, error) {
+func (u *TodoList) Find(conditions map[string]interface{}, opts *options.FindOptions) ([]*TodoList, error) {
 	coll := u.Model()
 	conditions["is_delete"] = constant.UNDELETE
 
-	cursor, err := coll.Find(context.TODO(), conditions)
+	cursor, err := coll.Find(context.TODO(), conditions, opts)
 	if err != nil {
 		return nil, err
 	}
