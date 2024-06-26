@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserController struct {
@@ -24,15 +25,33 @@ func (userCtl UserController) List(c *gin.Context) {
 	var req getlisttodo.GetListReq
 	var res []getlisttodo.GetListRes
 
-	cond := bson.M{}
 	err := c.ShouldBindWith(&req, binding.Query)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	cond := bson.M{}
+	if req.Task != nil {
+		cond["task"] = *req.Task
+	}
+	sortby := "task"
+	if req.SortBy != nil {
+		sortby = *req.SortBy
+	}
+	sortt := 1
+	if req.SortOrder != nil && *req.SortOrder != "desc" {
+		sortt = -1
+	}
 
-	todos, err := todoModel.Find(cond)
+	opts := options.Find().SetSort(bson.M{sortby: sortt})
+	if req.Skip != nil {
+		opts.SetSkip(*req.Skip)
+	}
+	if req.Limit != nil {
+		opts.SetLimit(*req.Limit)
+	}
+	todos, err := todoModel.Find(cond, opts)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
