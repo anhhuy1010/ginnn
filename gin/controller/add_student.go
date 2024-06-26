@@ -1,8 +1,9 @@
 package controller
 
 import (
+
 	"fmt"
-	modelAddStudent "gin/model/add_student"
+	handleAddStudent "gin/handle/add_student"
 	requestStudent "gin/request/student"
 	"net/http"
 
@@ -24,7 +25,7 @@ func AddStuHandle(c *gin.Context) {
 		{Name: "vit", Age: 42, Class: 33, Id: 4},
 	}
 
-	res, err := modelAddStudent.Add_Student(Studentss, req)
+	res, err := handleAddStudent.Add_Student(Studentss, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

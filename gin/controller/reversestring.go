@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	modelReverseString "gin/model/reverse_string"
+	handleReverseString "gin/handle/reverse_string"
 	requestReverseString "gin/request/reverse_string"
 	"net/http"
 
@@ -16,7 +16,7 @@ func ReverseHandle(c *gin.Context) {
 		return
 	}
 
-	res := modelReverseString.Reverse(req.Arr)
+	res := handleReverseString.Reverse(req.Arr)
 	fmt.Println(res)
 	c.JSON(http.StatusOK, gin.H{"result": res})
 }

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	modelUpdateStudent "gin/model/update_student"
+	handleUpdateStudent "gin/handle/update_student"
 	requestStudent "gin/request/student"
 	"net/http"
 
@@ -21,7 +21,7 @@ func UpdateHandle(c *gin.Context) {
 		{Name: "aa", Age: 32, Class: 13, Id: 3},
 		{Name: "voy", Age: 42, Class: 33, Id: 4},
 	}
-	res, err := modelUpdateStudent.Update(req.Id, Studentss, req)
+	res, err := handleUpdateStudent.Update(req.Id, Studentss, req)
 	fmt.Println(res)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

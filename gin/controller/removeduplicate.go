@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	modelRemoveDuplicate "gin/model/remove_duplicate"
+	handleRemoveDuplicate "gin/handle/remove_duplicate"
 	requestRemoveDuplicate "gin/request/remove_duplicate"
 	"net/http"
 
@@ -16,7 +16,7 @@ func RemoveDupHandle(c *gin.Context) {
 		return
 	}
 
-	res := modelRemoveDuplicate.RemoveDuplicate(req.Arr1)
+	res := handleRemoveDuplicate.RemoveDuplicate(req.Arr1)
 	fmt.Println(res)
 	c.JSON(http.StatusOK, gin.H{"result": res})
 }

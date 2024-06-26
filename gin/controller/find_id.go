@@ -1,7 +1,7 @@
 package controller
 
 import (
-	modelFindId "gin/model/find_id"
+	handleFindId "gin/handle/find_id"
 	requestFindId "gin/request/find_id"
 	requestStudent "gin/request/student"
 	"net/http"
@@ -21,7 +21,7 @@ func FindIdHandle(c *gin.Context) {
 		{Name: "aa", Age: 32, Class: 13, Id: 3},
 		{Name: "voy", Age: 42, Class: 33, Id: 4},
 	}
-	res, err := modelFindId.FindId(req.Id, Studentss)
+	res, err := handleFindId.FindId(req.Id, Studentss)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

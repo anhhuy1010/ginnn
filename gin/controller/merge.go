@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	modelMerge "gin/model/merge"
+	handleMerge "gin/handle/merge"
 	requestMerge "gin/request/merge"
 	"net/http"
 
@@ -16,7 +16,7 @@ func MergeArrHandle(c *gin.Context) {
 		return
 	}
 
-	res := modelMerge.Merge(req.Arr1, req.Arr2)
+	res := handleMerge.Merge(req.Arr1, req.Arr2)
 	fmt.Println(res)
 	c.JSON(http.StatusOK, gin.H{"result": res})
 }
