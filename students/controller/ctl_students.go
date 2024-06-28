@@ -14,13 +14,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type StudentController struct {
 }
 
+// tìm kiếm và in hiển thị danh sách student
 func (studentCtl StudentController) List(c *gin.Context) {
-	todoModel := new(model.Students)
+	studentModel := new(model.Students)
 	var req getliststudent.Req
 	var res []getliststudent.Res
 	err := c.ShouldBindWith(&req, binding.Query)
@@ -30,23 +32,39 @@ func (studentCtl StudentController) List(c *gin.Context) {
 		return
 	}
 	cond := bson.M{}
-	student, err := todoModel.Find(cond)
+	// điều kiện hiển thị danh sách student theo độ tuổi
+	if req.Age != nil {
+		cond["age"] = bson.M{"$gt": req.Age}
+	}
+	// điều kiện sắp xếp danh sách tăng hoặc giảm dần theo các trường thông tin
+	sortby := "name"
+	if req.Sortby != nil && *req.Sortby != "" {
+		sortby = *req.Sortby
+	}
+	sortt := 1
+	if req.Sortorder != nil && *req.Sortorder == "desc" {
+		sortt = -1
+	}
+	opts := options.Find().SetSort(bson.M{sortby: sortt})
+	fmt.Println(bson.M{sortby: sortt})
+	student, err := studentModel.Find(cond, opts)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	for _, stu := range student {
-		resz := getliststudent.Res{
+		resp := getliststudent.Res{
 			Name:  stu.Name,
 			Age:   stu.Age,
 			Class: stu.Class,
 		}
-		res = append(res, resz)
+		res = append(res, resp)
 	}
 	c.JSON(http.StatusOK, res)
 }
 
+// tìm kiếm student bằng uuid và hiển thị student
 func (studentCtl StudentController) Detail(c *gin.Context) {
 	todoModel := new(model.Students)
 	var req getdetailstudent.Req
@@ -72,19 +90,30 @@ func (studentCtl StudentController) Detail(c *gin.Context) {
 	c.JSON(http.StatusOK, resz)
 }
 
+// tạo ra một student mới
 func (studentCtl StudentController) Create(c *gin.Context) {
 	var req createstudent.Req
+	studentModel := new(model.Students)
 	err := c.ShouldBindBodyWithJSON(&req)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// điều kiện kiểm tra uuid đã có trong dữ liệu hay chưa
+	cond := bson.M{"uuid": req.Uuid}
+	_, err = studentModel.FindOne(cond)
+	if err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Student already exists"})
+		return
+	}
+
 	studentData := model.Students{
-		Uuid:  req.Uuid,
-		Name:  req.Name,
-		Age:   req.Age,
-		Class: req.Class,
+		Uuid:     req.Uuid,
+		Name:     req.Name,
+		Age:      req.Age,
+		Class:    req.Class,
+		IsDelete: constant.UNDELETE,
 	}
 	_, err = studentData.Insert()
 	if err != nil {
@@ -92,11 +121,15 @@ func (studentCtl StudentController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Println(studentData)
+
 	c.JSON(http.StatusOK, gin.H{"create successfull": req.Uuid})
 }
+
+// hàm cập nhật student
 func (studentCtl StudentController) Update(c *gin.Context) {
-	var req updatestudent.ReqUri
-	var reqq updatestudent.Req
+	var reqUri updatestudent.ReqUri
+	var req updatestudent.Req
 	todoModel := new(model.Students)
 	err := c.ShouldBindUri(&req)
 	if err != nil {
@@ -104,27 +137,27 @@ func (studentCtl StudentController) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = c.ShouldBindJSON(&reqq)
+	err = c.ShouldBindJSON(&reqUri)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	cond := bson.M{"uuid": req.Uuid}
+	cond := bson.M{"uuid": reqUri.Uuid}
 	student, err := todoModel.FindOne(cond)
 	if err != nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if reqq.Name != "" {
-		student.Name = reqq.Name
+	if req.Name != "" {
+		student.Name = req.Name
 	}
-	if reqq.Age != nil {
-		student.Age = *reqq.Age
+	if req.Age != nil {
+		student.Age = *req.Age
 	}
-	if reqq.Class != nil {
-		student.Class = *reqq.Class
+	if req.Class != nil {
+		student.Class = *req.Class
 	}
 	_, err = student.Update()
 	if err != nil {
@@ -136,6 +169,7 @@ func (studentCtl StudentController) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Update successfull": student.Uuid})
 }
 
+// hàm xóa một student
 func (studentCtl StudentController) Delete(c *gin.Context) {
 	todoModel := new(model.Students)
 	var req deletestudent.Req

@@ -6,6 +6,7 @@ import (
 	"students/database"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Students struct {
@@ -21,10 +22,10 @@ func (u *Students) Model() *mongo.Collection {
 	return db.Collection("student")
 }
 
-func (u *Students) Find(conditions map[string]interface{}) ([]*Students, error) {
+func (u *Students) Find(conditions map[string]interface{}, opts ...*options.FindOptions) ([]*Students, error) {
 	conditions["is_delete"] = constant.UNDELETE
 	coll := u.Model()
-	cursor, err := coll.Find(context.TODO(), conditions)
+	cursor, err := coll.Find(context.TODO(), conditions, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +60,10 @@ func (u *Students) FindOne(conditions map[string]interface{}) (*Students, error)
 }
 func (u *Students) Insert() (interface{}, error) {
 	coll := u.Model()
-
 	resp, err := coll.InsertOne(context.TODO(), u)
 	if err != nil {
 		return 0, err
 	}
-
 	return resp, nil
 }
 func (u *Students) Update() (int64, error) {
